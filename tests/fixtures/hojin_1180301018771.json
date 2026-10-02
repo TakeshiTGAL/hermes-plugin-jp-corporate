@@ -1,0 +1,23 @@
+{
+ "id": "1180301018771",
+ "errors": null,
+ "message": "200 - OK.",
+ "hojin-infos": [
+  {
+   "corporate_number": "1180301018771",
+   "name": "トヨタ自動車株式会社",
+   "location": "愛知県豊田市トヨタ町１番地",
+   "postal_code": "4710826",
+   "status": "-",
+   "close_date": null,
+   "close_cause": null,
+   "kind": "301",
+   "capital_stock": 635402000000,
+   "industry": [
+    "E"
+   ],
+   "date_of_establishment": "1937-08-27",
+   "update_date": "2019-04-23T00:00:00+09:00"
+  }
+ ]
+}

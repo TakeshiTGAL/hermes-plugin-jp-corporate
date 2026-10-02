@@ -1,0 +1,86 @@
+{
+ "id": "5011001043924",
+ "errors": null,
+ "message": "200 - OK.",
+ "hojin-infos": [
+  {
+   "corporate_number": "5011001043924",
+   "name": "株式会社グローバルプロダクトプランニング",
+   "location": "東京都渋谷区南平台町１２番８号",
+   "patent": [
+    {
+     "patent_type": "特許",
+     "registration_number": "6469471",
+     "application_date": "2015-02-16",
+     "title": "香料含有シート並びにその製造方法"
+    },
+    {
+     "patent_type": "特許",
+     "registration_number": "6469471",
+     "application_date": "2015-02-16",
+     "title": "香料含有シート並びにその製造方法"
+    },
+    {
+     "patent_type": "特許",
+     "registration_number": "6469471",
+     "application_date": "2015-02-16",
+     "title": "香料含有シート並びにその製造方法"
+    },
+    {
+     "patent_type": "特許",
+     "registration_number": "6469471",
+     "application_date": "2015-02-16",
+     "title": "香料含有シート並びにその製造方法"
+    },
+    {
+     "patent_type": "商標",
+     "registration_number": "6711781",
+     "application_date": "2022-12-14",
+     "title": "ゆるりと"
+    },
+    {
+     "patent_type": "商標",
+     "registration_number": "6711781",
+     "application_date": "2022-12-14",
+     "title": "ゆるりと"
+    },
+    {
+     "patent_type": "商標",
+     "registration_number": "6661162",
+     "application_date": "2021-12-01",
+     "title": "朝霧みらいフィールズ"
+    },
+    {
+     "patent_type": "商標",
+     "registration_number": "6661162",
+     "application_date": "2021-12-01",
+     "title": "朝霧みらいフィールズ"
+    },
+    {
+     "patent_type": "商標",
+     "registration_number": "6661162",
+     "application_date": "2021-12-01",
+     "title": "朝霧みらいフィールズ"
+    },
+    {
+     "patent_type": "商標",
+     "registration_number": "6577999",
+     "application_date": "2021-09-17",
+     "title": "ビューウエル"
+    },
+    {
+     "patent_type": "商標",
+     "registration_number": "6604064",
+     "application_date": "2021-09-17",
+     "title": "アンドグッドナイト"
+    },
+    {
+     "patent_type": "商標",
+     "registration_number": "6577999",
+     "application_date": "2021-09-17",
+     "title": "ビューウエル"
+    }
+   ]
+  }
+ ]
+}

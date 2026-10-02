@@ -1,0 +1,52 @@
+{
+ "id": "1180301018771",
+ "errors": null,
+ "message": "200 - OK.",
+ "hojin-infos": [
+  {
+   "corporate_number": "1180301018771",
+   "name": "トヨタ自動車株式会社",
+   "location": "愛知県豊田市トヨタ町１番地",
+   "finance": {
+    "fiscal_year_cover_page": "2026年３月期（自  2025年４月１日  至  2026年３月31日）",
+    "management_index": [
+     {
+      "period": "4",
+      "net_sales_summary_of_business_results": 12607858000000,
+      "net_sales_summary_of_business_results_unit_ref": "JPY"
+     },
+     {
+      "period": "3",
+      "net_sales_summary_of_business_results": 14076956000000,
+      "net_sales_summary_of_business_results_unit_ref": "JPY"
+     },
+     {
+      "period": "2",
+      "net_sales_summary_of_business_results": 17575593000000,
+      "net_sales_summary_of_business_results_unit_ref": "JPY"
+     },
+     {
+      "period": "1",
+      "net_sales_summary_of_business_results": 18277671000000,
+      "net_sales_summary_of_business_results_unit_ref": "JPY"
+     },
+     {
+      "period": "0",
+      "net_sales_summary_of_business_results": 18259979000000,
+      "net_sales_summary_of_business_results_unit_ref": "JPY"
+     }
+    ],
+    "major_shareholders": [
+     {
+      "name_major_shareholders": "㈱豊田自動織機",
+      "shareholding_ratio": 0.0915
+     },
+     {
+      "name_major_shareholders": "日本マスタートラスト信託銀行㈱",
+      "shareholding_ratio": 0.128
+     }
+    ]
+   }
+  }
+ ]
+}

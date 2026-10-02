@@ -1,0 +1,22 @@
+name: jp-corporate
+version: 0.1.0
+manifest_version: 2
+description: >
+  法人照会 / Japanese corporate lookup: find a Japanese corporation by name or
+  corporate number (法人番号), verify an invoice's number, and read its gBizINFO
+  record (basic info, subsidies, government contracts, awards, certifications,
+  financials, patents, workplace data). Two read-only tools.
+author: TakeshiTGAL
+license: MIT
+homepage: https://github.com/TakeshiTGAL/hermes-plugin-jp-corporate
+tags: [japan, company-data, due-diligence, invoice, gbizinfo]
+
+provides_tools:
+  - jp_corp_search
+  - jp_corp_profile
+
+requires_env:
+  - name: GBIZINFO_API_TOKEN
+    description: "Your free gBizINFO REST API token (apply once on the form; the token is shown via the link in the confirmation email)"
+    url: "https://info.gbiz.go.jp/hojin/various_registration/form"
+    secret: true

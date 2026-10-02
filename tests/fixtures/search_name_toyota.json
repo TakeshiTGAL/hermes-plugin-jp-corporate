@@ -1,0 +1,574 @@
+{
+ "id": null,
+ "errors": null,
+ "message": "200 - OK.",
+ "hojin-infos": [
+  {
+   "corporate_number": "1100001008774",
+   "name": "軽井沢トヨタ自動車株式会社",
+   "location": "長野県北佐久郡軽井沢町大字長倉字屋敷裏２４１４番地１",
+   "postal_code": "3890111",
+   "status": "閉鎖"
+  },
+  {
+   "corporate_number": "1180301018771",
+   "name": "トヨタ自動車株式会社",
+   "location": "愛知県豊田市トヨタ町１番地",
+   "postal_code": "4710826",
+   "status": "-"
+  },
+  {
+   "corporate_number": "1430005009042",
+   "name": "トヨタ自動車北海道労働組合",
+   "location": "北海道苫小牧市字勇払１４５番１",
+   "postal_code": "0591372",
+   "status": "-"
+  },
+  {
+   "corporate_number": "1440005000132",
+   "name": "函館トヨタ自動車協同組合",
+   "location": "北海道函館市石川町１６９番地３５",
+   "postal_code": "0410802",
+   "status": "-"
+  },
+  {
+   "corporate_number": "1470003001699",
+   "name": "東かがわトヨタ自動車販売合同会社",
+   "location": "香川県東かがわ市西村１５０１番地１",
+   "postal_code": "7692604",
+   "status": "-"
+  },
+  {
+   "corporate_number": "2180305005096",
+   "name": "トヨタ自動車紡織部刈谷工場労働組合",
+   "location": "愛知県刈谷市大字刈谷字岡留池１番地",
+   "postal_code": "4480000",
+   "status": "-"
+  },
+  {
+   "corporate_number": "2220001000990",
+   "name": "石川トヨタ自動車株式会社",
+   "location": "石川県金沢市御影町３番１号",
+   "postal_code": "9218021",
+   "status": "-"
+  },
+  {
+   "corporate_number": "2270001000937",
+   "name": "鳥取トヨタ自動車株式会社",
+   "location": "鳥取県鳥取市天神町３番地",
+   "postal_code": "6800847",
+   "status": "-"
+  },
+  {
+   "corporate_number": "2280001000341",
+   "name": "島根トヨタ自動車株式会社",
+   "location": "島根県松江市西津田１丁目７番２４号",
+   "postal_code": "6900017",
+   "status": "-"
+  },
+  {
+   "corporate_number": "2360003004852",
+   "name": "合資会社名護トヨタ自動車販売",
+   "location": "沖縄県名護市字名護６０８番地の３",
+   "postal_code": "9050012",
+   "status": "閉鎖"
+  },
+  {
+   "corporate_number": "2430001020191",
+   "name": "札幌トヨタ自動車株式会社",
+   "location": "北海道札幌市中央区北一条西７丁目３番地８",
+   "postal_code": "0600001",
+   "status": "-"
+  },
+  {
+   "corporate_number": "2500001000806",
+   "name": "愛媛トヨタ自動車株式会社",
+   "location": "愛媛県松山市宮田町１０９番地の１",
+   "postal_code": "7900066",
+   "status": "-"
+  },
+  {
+   "corporate_number": "2700150066859",
+   "name": "兵庫トヨタ自動車企業年金基金",
+   "location": "兵庫県神戸市中央区磯辺通４丁目２番１２号",
+   "postal_code": "6510084",
+   "status": "-"
+  },
+  {
+   "corporate_number": "3013101009781",
+   "name": "トヨタ自動車羽村株式会社",
+   "location": "東京都羽村市緑ヶ丘３丁目１番地１",
+   "postal_code": "2050003",
+   "status": "-"
+  },
+  {
+   "corporate_number": "3050001000280",
+   "name": "茨城トヨタ自動車株式会社",
+   "location": "茨城県水戸市泉町２丁目３番２４号",
+   "postal_code": "3100026",
+   "status": "-"
+  },
+  {
+   "corporate_number": "3080001002885",
+   "name": "静岡トヨタ自動車株式会社",
+   "location": "静岡県静岡市駿河区国吉田２丁目３番１号",
+   "postal_code": "4228004",
+   "status": "-"
+  },
+  {
+   "corporate_number": "3100001021206",
+   "name": "駒ヶ根トヨタ自動車株式会社",
+   "location": "長野県駒ヶ根市赤須町１０番１１号",
+   "postal_code": "3994113",
+   "status": "閉鎖"
+  },
+  {
+   "corporate_number": "3170001001498",
+   "name": "和歌山トヨタ自動車株式会社",
+   "location": "和歌山県和歌山市美園町２丁目６５番地",
+   "postal_code": "6408331",
+   "status": "-"
+  },
+  {
+   "corporate_number": "3440001001702",
+   "name": "函館トヨタ自動車株式会社",
+   "location": "北海道函館市昭和４丁目２２番５号",
+   "postal_code": "0410812",
+   "status": "-"
+  },
+  {
+   "corporate_number": "3470001017431",
+   "name": "香川トヨタ自動車株式会社",
+   "location": "香川県高松市番町２丁目５番１４号",
+   "postal_code": "7600017",
+   "status": "-"
+  },
+  {
+   "corporate_number": "4040005000665",
+   "name": "千葉トヨタ自動車労働組合",
+   "location": "千葉県千葉市中央区登戸２丁目２番７号千葉トヨタ自動車株式会社内",
+   "postal_code": "2600032",
+   "status": "-"
+  },
+  {
+   "corporate_number": "4070001006705",
+   "name": "群馬トヨタ自動車株式会社",
+   "location": "群馬県高崎市東町８０番地",
+   "postal_code": "3700045",
+   "status": "-"
+  },
+  {
+   "corporate_number": "4100001011809",
+   "name": "飯山トヨタ自動車株式会社",
+   "location": "長野県飯山市大字静間字小屋解１２３番地１",
+   "postal_code": "3892255",
+   "status": "閉鎖"
+  },
+  {
+   "corporate_number": "4100002033059",
+   "name": "長野トヨタ自動車株式会社",
+   "location": "長野県長野市大字南長野南石堂町１３２６番地１",
+   "postal_code": "3800824",
+   "status": "-"
+  },
+  {
+   "corporate_number": "4130001012168",
+   "name": "京都トヨタ自動車株式会社",
+   "location": "京都府京都市南区吉祥院三ノ宮町１００番地",
+   "postal_code": "6018319",
+   "status": "-"
+  },
+  {
+   "corporate_number": "4240001009500",
+   "name": "広島トヨタ自動車株式会社",
+   "location": "広島県広島市西区観音新町４丁目１０番１３４号",
+   "postal_code": "7330036",
+   "status": "-"
+  },
+  {
+   "corporate_number": "4250001000788",
+   "name": "山口トヨタ自動車株式会社",
+   "location": "山口県山口市小郡本町１丁目１番４３号",
+   "postal_code": "7540073",
+   "status": "-"
+  },
+  {
+   "corporate_number": "4290801014505",
+   "name": "トヨタ自動車九州株式会社",
+   "location": "福岡県宮若市上有木１番地",
+   "postal_code": "8230015",
+   "status": "-"
+  },
+  {
+   "corporate_number": "4300001000527",
+   "name": "佐賀トヨタ自動車株式会社",
+   "location": "佐賀県佐賀市嘉瀬町大字扇町２４８０番地",
+   "postal_code": "8400862",
+   "status": "-"
+  },
+  {
+   "corporate_number": "4400005000876",
+   "name": "岩手トヨタ自動車労働組合",
+   "location": "岩手県盛岡市上堂４丁目１２番１１号",
+   "postal_code": "0200125",
+   "status": "-"
+  },
+  {
+   "corporate_number": "4430005002614",
+   "name": "札幌トヨタ自動車労働組合",
+   "location": "北海道札幌市中央区北一条西７丁目札幌トヨタ自動車株式会社内",
+   "postal_code": "0600001",
+   "status": "-"
+  },
+  {
+   "corporate_number": "4450001000264",
+   "name": "旭川トヨタ自動車株式会社",
+   "location": "北海道旭川市四条通２丁目",
+   "postal_code": "0700034",
+   "status": "-"
+  },
+  {
+   "corporate_number": "4460001000494",
+   "name": "釧路トヨタ自動車株式会社",
+   "location": "北海道釧路市鳥取大通６丁目４番３号",
+   "postal_code": "0840906",
+   "status": "-"
+  },
+  {
+   "corporate_number": "4500005001286",
+   "name": "愛媛トヨタ自動車労働組合",
+   "location": "愛媛県松山市宮田町１０９の１愛媛トヨタ自動車株式会社内",
+   "postal_code": "7900066",
+   "status": "-"
+  },
+  {
+   "corporate_number": "4700150069059",
+   "name": "新潟トヨタ自動車連合厚生年金基金",
+   "location": "新潟県新潟市中央区女池南１丁目２番１３号",
+   "postal_code": "9500948",
+   "status": "閉鎖"
+  },
+  {
+   "corporate_number": "5010401035317",
+   "name": "東京トヨタ自動車株式会社",
+   "location": "東京都港区三田３丁目１１番３４号",
+   "postal_code": "1080073",
+   "status": "閉鎖"
+  },
+  {
+   "corporate_number": "5030002034105",
+   "name": "有限会社トヨタ自動車運輸",
+   "location": "埼玉県狭山市入間川４丁目１０番２５号",
+   "postal_code": "3501305",
+   "status": "-"
+  },
+  {
+   "corporate_number": "5040001008249",
+   "name": "千葉トヨタ自動車株式会社",
+   "location": "千葉県千葉市中央区登戸２丁目２番７号",
+   "postal_code": "2600032",
+   "status": "-"
+  },
+  {
+   "corporate_number": "5360001008563",
+   "name": "沖縄トヨタ自動車株式会社",
+   "location": "沖縄県浦添市勢理客４丁目１８番１号",
+   "postal_code": "9012122",
+   "status": "-"
+  },
+  {
+   "corporate_number": "5400001000193",
+   "name": "岩手トヨタ自動車株式会社",
+   "location": "岩手県盛岡市上堂４丁目１２番１１号",
+   "postal_code": "0200125",
+   "status": "-"
+  },
+  {
+   "corporate_number": "5430001053338",
+   "name": "トヨタ自動車北海道株式会社",
+   "location": "北海道苫小牧市字勇払１４５番１",
+   "postal_code": "0591372",
+   "status": "-"
+  },
+  {
+   "corporate_number": "5430005002522",
+   "name": "北海道トヨタ自動車協同組合",
+   "location": "北海道札幌市中央区北一条西７丁目３番地８",
+   "postal_code": "0600001",
+   "status": "-"
+  },
+  {
+   "corporate_number": "5700150027833",
+   "name": "兵庫トヨタ自動車健康保険組合",
+   "location": "兵庫県神戸市中央区磯辺通４丁目２－１２",
+   "postal_code": "6510084",
+   "status": "-"
+  },
+  {
+   "corporate_number": "5700150044011",
+   "name": "トヨタ自動車安全衛生協力会",
+   "location": "愛知県豊田市トヨタ町１番地トヨタ会館Ｇ階",
+   "postal_code": "4710826",
+   "status": "-"
+  },
+  {
+   "corporate_number": "6021001040127",
+   "name": "トヨタ自動車東日本株式会社",
+   "location": "宮城県黒川郡大衡村中央平１番地",
+   "postal_code": "9813609",
+   "status": "-"
+  },
+  {
+   "corporate_number": "6110001003992",
+   "name": "新潟トヨタ自動車株式会社",
+   "location": "新潟県新潟市中央区万代２丁目１番１号",
+   "postal_code": "9500088",
+   "status": "-"
+  },
+  {
+   "corporate_number": "6180305005340",
+   "name": "トヨタ自動車労働組合",
+   "location": "愛知県豊田市丸山町１０丁目５番地１",
+   "postal_code": "4710832",
+   "status": "-"
+  },
+  {
+   "corporate_number": "6260001001230",
+   "name": "岡山トヨタ自動車株式会社",
+   "location": "岡山県岡山市北区大供３丁目２番１２号",
+   "postal_code": "7000913",
+   "status": "-"
+  },
+  {
+   "corporate_number": "6290001010006",
+   "name": "福岡トヨタ自動車株式会社",
+   "location": "福岡県福岡市中央区渡辺通４丁目８番２８号",
+   "postal_code": "8100004",
+   "status": "-"
+  },
+  {
+   "corporate_number": "6370001006557",
+   "name": "宮城トヨタ自動車株式会社",
+   "location": "宮城県仙台市宮城野区日の出町２丁目３番７号",
+   "postal_code": "9830035",
+   "status": "-"
+  },
+  {
+   "corporate_number": "6380001001499",
+   "name": "福島トヨタ自動車株式会社",
+   "location": "福島県福島市太平寺字沖高２５番地",
+   "postal_code": "9608151",
+   "status": "-"
+  },
+  {
+   "corporate_number": "6410001000514",
+   "name": "秋田トヨタ自動車株式会社",
+   "location": "秋田県秋田市泉中央２丁目１番３号",
+   "postal_code": "0100917",
+   "status": "-"
+  },
+  {
+   "corporate_number": "6430003003926",
+   "name": "ひだかトヨタ自動車販売合同会社",
+   "location": "北海道日高郡新ひだか町静内末広町３丁目１番２３号",
+   "postal_code": "0560026",
+   "status": "-"
+  },
+  {
+   "corporate_number": "7100001021466",
+   "name": "伊北トヨタ自動車株式会社",
+   "location": "長野県上伊那郡箕輪町大字中箕輪字北原１４６５番地１",
+   "postal_code": "3994601",
+   "status": "閉鎖"
+  },
+  {
+   "corporate_number": "7140001044083",
+   "name": "株式会社高砂トヨタ自動車サービス",
+   "location": "兵庫県高砂市米田町古新２６６番地の１４",
+   "postal_code": "6760802",
+   "status": "-"
+  },
+  {
+   "corporate_number": "7140005003151",
+   "name": "兵庫県トヨタ自動車事業協同組合",
+   "location": "兵庫県神戸市中央区磯辺通４丁目２番１２号",
+   "postal_code": "6510084",
+   "status": "-"
+  },
+  {
+   "corporate_number": "7340001000990",
+   "name": "鹿児島トヨタ自動車株式会社",
+   "location": "鹿児島県鹿児島市西千石町１番２８号",
+   "postal_code": "8920847",
+   "status": "-"
+  },
+  {
+   "corporate_number": "7390001002074",
+   "name": "山形トヨタ自動車株式会社",
+   "location": "山形県山形市南一番町１１番１６号",
+   "postal_code": "9902441",
+   "status": "-"
+  },
+  {
+   "corporate_number": "7700150105827",
+   "name": "新潟トヨタ自動車連合企業年金基金",
+   "location": "新潟県新潟市中央区万代２丁目１番１号",
+   "postal_code": "9500088",
+   "status": "-"
+  },
+  {
+   "corporate_number": "8030001003330",
+   "name": "埼玉トヨタ自動車株式会社",
+   "location": "埼玉県さいたま市中央区下落合６丁目１番１８号",
+   "postal_code": "3380002",
+   "status": "-"
+  },
+  {
+   "corporate_number": "8060001002998",
+   "name": "栃木トヨタ自動車株式会社",
+   "location": "栃木県宇都宮市横田新町３番４７号",
+   "postal_code": "3210105",
+   "status": "-"
+  },
+  {
+   "corporate_number": "8110005000316",
+   "name": "新潟トヨタ自動車整備工業協同組合",
+   "location": "新潟県新潟市中央区万代２丁目１番１号",
+   "postal_code": "9500088",
+   "status": "-"
+  },
+  {
+   "corporate_number": "8110005000547",
+   "name": "新潟トヨタ自動車労働組合",
+   "location": "新潟県新潟市中央区万代２丁目１番１号",
+   "postal_code": "9500088",
+   "status": "-"
+  },
+  {
+   "corporate_number": "8140001012345",
+   "name": "兵庫トヨタ自動車株式会社",
+   "location": "兵庫県神戸市中央区磯辺通４丁目２番１２号",
+   "postal_code": "6510084",
+   "status": "-"
+  },
+  {
+   "corporate_number": "8200001001416",
+   "name": "岐阜トヨタ自動車株式会社",
+   "location": "岐阜県岐阜市金園町９丁目２８番地",
+   "postal_code": "5008113",
+   "status": "-"
+  },
+  {
+   "corporate_number": "8350001001863",
+   "name": "宮崎トヨタ自動車株式会社",
+   "location": "宮崎県宮崎市大字芳士字谷口６９２番地１７",
+   "postal_code": "8800123",
+   "status": "-"
+  },
+  {
+   "corporate_number": "8480001001479",
+   "name": "徳島トヨタ自動車株式会社",
+   "location": "徳島県徳島市中前川町５丁目１番地１",
+   "postal_code": "7700807",
+   "status": "-"
+  },
+  {
+   "corporate_number": "8700150043893",
+   "name": "トヨタ自動車健康保険組合",
+   "location": "愛知県豊田市丸山町６丁目２２",
+   "postal_code": "4710832",
+   "status": "-"
+  },
+  {
+   "corporate_number": "8700150133439",
+   "name": "トヨタ自動車東日本健康保険組合",
+   "location": "宮城県黒川郡大衡村中央平１番地",
+   "postal_code": "9813609",
+   "status": "-"
+  },
+  {
+   "corporate_number": "9020001055504",
+   "name": "神奈川トヨタ自動車株式会社",
+   "location": "神奈川県横浜市神奈川区栄町７番地１",
+   "postal_code": "2210052",
+   "status": "-"
+  },
+  {
+   "corporate_number": "9080105001027",
+   "name": "トヨタ自動車東日本労働組合",
+   "location": "宮城県黒川郡大衡村中央平１番地トヨタ自動車東日本株式会社内",
+   "postal_code": "9813609",
+   "status": "-"
+  },
+  {
+   "corporate_number": "9090001002292",
+   "name": "山梨トヨタ自動車株式会社",
+   "location": "山梨県甲府市宝１丁目２１番２９号",
+   "postal_code": "4000034",
+   "status": "-"
+  },
+  {
+   "corporate_number": "9120105003803",
+   "name": "近畿トヨタ自動車販売事業協同組合",
+   "location": "大阪府堺市西区浜寺諏訪森町西１丁７番地",
+   "postal_code": "5928347",
+   "status": "閉鎖"
+  },
+  {
+   "corporate_number": "9180001059935",
+   "name": "愛知トヨタ自動車株式会社",
+   "location": "愛知県名古屋市昭和区高辻町６番８号",
+   "postal_code": "4660057",
+   "status": "閉鎖"
+  },
+  {
+   "corporate_number": "9190001001103",
+   "name": "三重トヨタ自動車株式会社",
+   "location": "三重県津市垂水９９番地の１",
+   "postal_code": "5140821",
+   "status": "-"
+  },
+  {
+   "corporate_number": "9290805005669",
+   "name": "トヨタ自動車九州労働組合",
+   "location": "福岡県宮若市上有木字平山１番",
+   "postal_code": "8230015",
+   "status": "-"
+  },
+  {
+   "corporate_number": "9320001000248",
+   "name": "大分トヨタ自動車株式会社",
+   "location": "大分県大分市大字宮崎字口ノ坪１４２７番地の１",
+   "postal_code": "8701133",
+   "status": "-"
+  },
+  {
+   "corporate_number": "9330001001559",
+   "name": "熊本トヨタ自動車株式会社",
+   "location": "熊本県熊本市南区日吉２丁目１０番１号",
+   "postal_code": "8614109",
+   "status": "-"
+  },
+  {
+   "corporate_number": "9420001000213",
+   "name": "青森トヨタ自動車株式会社",
+   "location": "青森県青森市合浦２丁目１９番２３号",
+   "postal_code": "0300902",
+   "status": "-"
+  },
+  {
+   "corporate_number": "9700150043892",
+   "name": "トヨタ自動車企業年金基金",
+   "location": "愛知県豊田市喜多町２丁目１６０番地コモスクエアＷＥＳＴ４Ｆ",
+   "postal_code": "4710027",
+   "status": "-"
+  },
+  {
+   "corporate_number": "9700150102285",
+   "name": "新潟トヨタ自動車健康保険組合",
+   "location": "新潟県新潟市中央区万代２丁目１番１号コズミックス・ビル９階",
+   "postal_code": "9500088",
+   "status": "-"
+  }
+ ]
+}

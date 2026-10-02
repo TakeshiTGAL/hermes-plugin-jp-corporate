@@ -1,0 +1,26 @@
+{
+ "id": "1180301018771",
+ "errors": null,
+ "message": "200 - OK.",
+ "hojin-infos": [
+  {
+   "corporate_number": "1180301018771",
+   "name": "トヨタ自動車株式会社",
+   "location": "愛知県豊田市トヨタ町１番地",
+   "certification": [
+    {
+     "date_of_approval": "2024-07-01",
+     "title": "ＤＸ認定制度"
+    },
+    {
+     "date_of_approval": "2022-07-01",
+     "title": "ＤＸ認定制度"
+    },
+    {
+     "date_of_approval": null,
+     "title": "物品の製造：A\n物品の販売：A\n役務の提供等：A\n物品の買受け：A"
+    }
+   ]
+  }
+ ]
+}

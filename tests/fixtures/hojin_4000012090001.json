@@ -1,0 +1,15 @@
+{
+ "id": "4000012090001",
+ "errors": null,
+ "message": "200 - OK.",
+ "hojin-infos": [
+  {
+   "corporate_number": "4000012090001",
+   "name": "経済産業省",
+   "location": "東京都千代田区霞が関１丁目３－１",
+   "postal_code": "1000013",
+   "status": "-",
+   "kind": "101"
+  }
+ ]
+}
