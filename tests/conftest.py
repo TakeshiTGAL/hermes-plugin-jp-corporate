@@ -7,8 +7,10 @@ network request: sockets are blocked.
 
 import importlib.util
 import json
+import os
 import socket
 import sys
+import types
 import urllib.error
 import urllib.parse
 from pathlib import Path
@@ -38,10 +40,65 @@ def _load_plugin():
 PLUGIN = sys.modules.get(PACKAGE) or _load_plugin()
 sys.modules.setdefault("__init__", PLUGIN)
 
+_SCOPE_STANDIN = "_jp_corporate_scope_standin"
+
+
+def _install_scope_standin() -> None:
+    """Hermes is absent: let get_secret read this process's environment.
+
+    The same shape as index-search's stand-in (commit e3303f6). Tests that need
+    the real scope still call pytest.importorskip and skip this stand-in.
+    """
+    standin = types.ModuleType("agent.secret_scope")
+
+    def get_secret(name, default=None):
+        value = os.environ.get(name)
+        return default if value is None else value
+
+    standin.get_secret = get_secret
+    standin.UnscopedSecretError = type("UnscopedSecretError", (RuntimeError,), {})
+    standin.set_secret_scope = lambda mapping=None, **kwargs: None
+    standin.reset_secret_scope = lambda token: None
+    standin.set_multiplex_active = lambda active: None
+    setattr(standin, _SCOPE_STANDIN, True)
+    agent = sys.modules.get("agent")
+    if agent is None:
+        agent = types.ModuleType("agent")
+        sys.modules["agent"] = agent
+    sys.modules["agent.secret_scope"] = standin
+    setattr(agent, "secret_scope", standin)
+
+
+try:
+    import agent.secret_scope as _real_scope
+except ImportError:
+    _real_scope = None
+if _real_scope is None:
+    _install_scope_standin()
+
 
 @pytest.fixture(scope="session")
 def plugin():
     return PLUGIN
+
+
+@pytest.fixture(autouse=True)
+def _reset_secret_scope():
+    scope = sys.modules.get("agent.secret_scope")
+    if scope is None:
+        yield
+        return
+    scope.set_multiplex_active(False)
+    token = scope.set_secret_scope(None)
+    try:
+        yield
+    finally:
+        try:
+            scope.reset_secret_scope(token)
+        except ValueError:
+            pass
+        scope.set_secret_scope(None)
+        scope.set_multiplex_active(False)
 
 
 @pytest.fixture(autouse=True)

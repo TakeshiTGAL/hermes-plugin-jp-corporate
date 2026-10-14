@@ -1,6 +1,7 @@
 name: jp-corporate
-version: 0.1.0
+version: 0.1.1
 manifest_version: 2
+requires_hermes: ">=0.21.4"
 description: >
   法人照会 / Japanese corporate lookup: find a Japanese corporation by name or
   corporate number (法人番号), verify an invoice's number, and read its gBizINFO

@@ -1,6 +1,6 @@
 ## jp-corporate (法人照会) is installed
 
-It needs a free gBizINFO API token in `GBIZINFO_API_TOKEN` (`~/.hermes/.env`).
+It needs a free gBizINFO API token in `GBIZINFO_API_TOKEN`, in the `.env` of the profile that runs Hermes (`~/.hermes/.env` for the default profile, `~/.hermes/profiles/<name>/.env` for a named profile).
 No token yet? Apply at https://info.gbiz.go.jp/hojin/various_registration/form
 (申請区分「トークン利用(WebAPI・データダウンロード)」). The token is shown by the link in the
 「Web API 利用申請完了」 email. One token per person.

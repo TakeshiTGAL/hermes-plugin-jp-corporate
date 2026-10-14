@@ -184,6 +184,7 @@ def test_missing_token_points_to_the_application_form(plugin, api, monkeypatch):
     assert result["error"] == "token_missing"
     assert "https://info.gbiz.go.jp/hojin/various_registration/form" in result["message"]
     assert "~/.hermes/.env" in result["message"]
+    assert "~/.hermes/profiles/<name>/.env" in result["message"]
     assert api.requests == []
 
 
@@ -192,6 +193,7 @@ def test_rejected_token_says_what_to_check(plugin, api):
     result = call(plugin, "jp_corp_search", {"name": "トヨタ自動車"})
     assert result["error"] == "api" and result["http_status"] == 401
     assert "Web API 利用申請完了" in result["message"]
+    assert "~/.hermes/profiles/<name>/.env" in result["message"]
     assert FAKE_TOKEN not in json.dumps(result, ensure_ascii=False)
 
 
@@ -281,6 +283,19 @@ def test_profile_bad_number_is_an_input_error(plugin, api):
     assert result["error"] == "input" and api.requests == []
 
 
+def test_newline_token_is_absent_from_the_error(plugin, monkeypatch):
+    secret = "line1\nline2-secret-value"
+    monkeypatch.setenv("GBIZINFO_API_TOKEN", secret)
+    plugin.client.clear_cache()
+    result = call(plugin, "jp_corp_search", {"name": "トヨタ自動車"})
+    blob = json.dumps(result, ensure_ascii=False)
+    assert result["error"] == "internal"
+    assert "Invalid header value" in result["message"]
+    assert "[redacted]" in result["message"]
+    assert secret not in blob
+    assert "line2-secret-value" not in blob
+
+
 def test_handlers_return_json_even_on_unexpected_errors(plugin, api, monkeypatch):
     monkeypatch.setattr(plugin.client, "get", lambda *a, **k: 1 / 0)
     result = call(plugin, "jp_corp_search", {"corporate_number": METI})
@@ -321,3 +336,113 @@ def test_representative_padding_is_removed(plugin):
     # gBizINFO pads the title and each character of the name with NBSP + space (synthetic example).
     assert plugin.tools._representative("代表取締役\xa0\xa0\xa0 山\xa0 田\xa0 太\xa0 郎") == "代表取締役 山田太郎"
     assert plugin.tools._representative("代表取締役 山田 太郎") == "代表取締役 山田 太郎"
+
+
+_ENV_READ = __import__("re").compile(
+    r"""os\s*\.\s*(?:getenv\s*\(|environ\s*\.\s*get\s*\(|environ\s*\[\s*)\s*(?:['\"]GBIZINFO_API_TOKEN['\"]|TOKEN_ENV)"""
+)
+
+
+def _real_scope():
+    scope = pytest.importorskip("agent.secret_scope")
+    if getattr(scope, "_jp_corporate_scope_standin", False):
+        pytest.skip("real agent.secret_scope is not installed")
+    return scope
+
+
+def _release_scope(scope, token):
+    if token is not None:
+        try:
+            scope.reset_secret_scope(token)
+        except ValueError:
+            pass
+    scope.set_secret_scope(None)
+    scope.set_multiplex_active(False)
+
+
+def test_scope_value_is_used_when_environ_differs(plugin, api, monkeypatch):
+    scope = _real_scope()
+    monkeypatch.setenv("GBIZINFO_API_TOKEN", "env-token")
+    token = scope.set_secret_scope({"GBIZINFO_API_TOKEN": "scope-token"})
+    try:
+        call(plugin, "jp_corp_search", {"name": "トヨタ自動車"})
+    finally:
+        _release_scope(scope, token)
+    _url, headers = api.requests[0]
+    assert headers["X-hojininfo-api-token"] == "scope-token"
+
+
+def test_multiplex_scope_miss_does_not_read_environ(plugin, api, monkeypatch):
+    scope = _real_scope()
+    monkeypatch.setenv("GBIZINFO_API_TOKEN", "env-token")
+    scope.set_multiplex_active(True)
+    token = scope.set_secret_scope({"UNRELATED": "present"})
+    try:
+        result = call(plugin, "jp_corp_search", {"name": "トヨタ自動車"})
+    finally:
+        _release_scope(scope, token)
+    assert result["error"] == "token_missing"
+    assert result["message"].startswith("GBIZINFO_API_TOKEN is not set.")
+    assert "env-token" not in json.dumps(result)
+    assert api.requests == []
+
+
+def test_unscoped_multiplex_raises(plugin, monkeypatch):
+    scope = _real_scope()
+    monkeypatch.setenv("GBIZINFO_API_TOKEN", "env-token")
+    scope.set_multiplex_active(True)
+    token = scope.set_secret_scope(None)
+    try:
+        with pytest.raises(scope.UnscopedSecretError):
+            call(plugin, "jp_corp_search", {"name": "トヨタ自動車"})
+    finally:
+        _release_scope(scope, token)
+
+
+def test_unset_credentials_keep_the_fixed_error(plugin, api, monkeypatch):
+    scope = _real_scope()
+    monkeypatch.delenv("GBIZINFO_API_TOKEN", raising=False)
+    cleared = scope.set_secret_scope(None)
+    scope.set_multiplex_active(False)
+    try:
+        result = call(plugin, "jp_corp_search", {"name": "トヨタ自動車"})
+    finally:
+        _release_scope(scope, cleared)
+    assert result["error"] == "token_missing"
+    assert result["message"].startswith("GBIZINFO_API_TOKEN is not set.")
+    assert api.requests == []
+
+
+def test_plugin_code_does_not_read_gbizinfo_token_from_environ():
+    root = Path(__file__).resolve().parents[1]
+    for path in sorted(root.rglob("*.py")):
+        if "tests" in path.parts:
+            continue
+        assert _ENV_READ.search(path.read_text(encoding="utf-8")) is None, path.name
+
+
+def test_opener_ignores_https_proxy(plugin, monkeypatch):
+    import socket
+    import urllib.request
+
+    monkeypatch.setenv("HTTPS_PROXY", "http://proxy.test:8443")
+    monkeypatch.setenv("https_proxy", "http://proxy.test:8443")
+    monkeypatch.setenv("HTTP_PROXY", "http://proxy.test:8443")
+    monkeypatch.setenv("http_proxy", "http://proxy.test:8443")
+    opener = plugin.client._build_opener()
+    targets = []
+
+    def blocked(address, *args, **kwargs):
+        targets.append(address)
+        raise OSError("blocked")
+
+    monkeypatch.setattr(socket, "create_connection", blocked)
+    request = urllib.request.Request("https://api.info.gbiz.go.jp/hojin/v2/hojin")
+    try:
+        opener.open(request, timeout=1)
+    except Exception:
+        pass
+    assert targets
+    hosts = [item[0] if isinstance(item, tuple) else item for item in targets]
+    assert hosts[0] == "api.info.gbiz.go.jp"
+    assert "proxy.test" not in hosts

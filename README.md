@@ -8,7 +8,7 @@ Data comes from [gBizINFO](https://info.gbiz.go.jp/) (Gビズインフォ), the 
 
 ## Install
 
-1. Install and enable. Hermes asks for `GBIZINFO_API_TOKEN` and saves it to `~/.hermes/.env`:
+1. Install and enable. Hermes asks for `GBIZINFO_API_TOKEN` and saves it in that profile's `.env` (`~/.hermes/.env` for the default profile, `~/.hermes/profiles/<name>/.env` for a named profile):
 
    ```bash
    hermes plugins install TakeshiTGAL/hermes-plugin-jp-corporate --enable
@@ -16,7 +16,7 @@ Data comes from [gBizINFO](https://info.gbiz.go.jp/) (Gビズインフォ), the 
 
    Once the plugin is listed in the Hermes plugin catalog, `hermes plugins install jp-corporate --enable` works too. To try a local copy instead, run `hermes plugins install "file://$PWD" --enable` inside a clone of this repository.
 
-2. Paste your gBizINFO token at the prompt (or add `GBIZINFO_API_TOKEN=...` to `~/.hermes/.env` later), then restart Hermes.
+2. Paste your gBizINFO token at the prompt (or add `GBIZINFO_API_TOKEN=...` to that profile's `.env` later), then restart Hermes. A named profile does not read `~/.hermes/.env`.
 
 3. Ask:
 
@@ -132,7 +132,7 @@ For bulk data, use gBizINFO's [download files](https://info.gbiz.go.jp/hojin/Dow
 
 | What you see | What to do |
 |---|---|
-| `token_missing` | Apply for a token (above), add `GBIZINFO_API_TOKEN=...` to `~/.hermes/.env`, restart Hermes. |
+| `token_missing` | Apply for a token (above), add `GBIZINFO_API_TOKEN=...` to the profile `.env` (`~/.hermes/.env`, or `~/.hermes/profiles/<name>/.env` for a named profile), restart Hermes. |
 | `401` | The token is wrong. Copy it again from the page linked in the 「Web API 利用申請完了」 email, without quotes or spaces. |
 | `found: 0` | The message suggests what to try: a shorter or differently written name, or no address filter. A well-formed number that is not found may be a sole proprietor's invoice number; check <https://www.invoice-kohyo.nta.go.jp/>. |
 | `403` / `429` | gBizINFO is limiting requests. Wait several minutes; do not loop. |
@@ -148,8 +148,8 @@ For bulk data, use gBizINFO's [download files](https://info.gbiz.go.jp/hojin/Dow
 
 ## Security and privacy
 
-- Network: HTTPS requests to `api.info.gbiz.go.jp` only. The names, corporate numbers and prefectures you search for are sent there, with your token in the `X-hojinInfo-api-token` header. Redirects are refused, so the token cannot be forwarded to another host. The token never appears in tool output or error messages.
-- Reads only the `GBIZINFO_API_TOKEN` environment variable. Writes no files; the cache lives in memory and is gone when Hermes exits.
+- Network: HTTPS requests to `api.info.gbiz.go.jp` only. The names, corporate numbers and prefectures you search for are sent there, with your token in the `X-hojinInfo-api-token` header. Redirects are refused, so the token cannot be forwarded to another host. A proxy set in the environment is not used, so the token is not sent to it. The token never appears in tool output or error messages.
+- Reads `GBIZINFO_API_TOKEN` with Hermes `agent.secret_scope.get_secret` on each call. Writes no files; the cache lives in memory and is gone when Hermes exits.
 - Never prompts, so it does not block cron jobs or the messaging gateway: a missing token is returned as an error message.
 - Python standard library only, no dependencies. No shell commands, no background processes, no telemetry, no self-update.
 
@@ -165,7 +165,7 @@ The tests replay gBizINFO responses recorded on 2026-10-02 and trimmed to the fi
 
 ## License
 
-MIT. This plugin is not affiliated with or endorsed by the Ministry of Economy, Trade and Industry or gBizINFO.
+MIT. Built on gBizINFO (Gビズインフォ), the corporate-information service of Japan's Ministry of Economy, Trade and Industry.
 
 ---
 
@@ -178,7 +178,7 @@ MIT. This plugin is not affiliated with or endorsed by the Ministry of Economy, 
 ### 導入（3手）
 
 1. `hermes plugins install TakeshiTGAL/hermes-plugin-jp-corporate --enable` を実行する（手元のコピーで試すときは、clone したフォルダで `hermes plugins install "file://$PWD" --enable`）
-2. 聞かれたら Gビズインフォの API トークンを貼る（あとで `~/.hermes/.env` に `GBIZINFO_API_TOKEN=...` と書いてもよい）。Hermes を再起動する
+2. 聞かれたら Gビズインフォの API トークンを貼る（あとで、そのプロファイルの `.env` に `GBIZINFO_API_TOKEN=...` と書いてもよい。既定は `~/.hermes/.env`、名前つきプロファイルは `~/.hermes/profiles/<名前>/.env`）。Hermes を再起動する
 3. 「法人番号 1180301018771 の会社を調べて」と頼む
 
 ### トークンの申請
@@ -205,7 +205,7 @@ MIT. This plugin is not affiliated with or endorsed by the Ministry of Economy, 
 
 | 表示 | すること |
 |---|---|
-| `token_missing` | トークンを申請し、`~/.hermes/.env` に `GBIZINFO_API_TOKEN=...` を書いて Hermes を再起動する |
+| `token_missing` | トークンを申請し、そのプロファイルの `.env`（既定は `~/.hermes/.env`、名前つきは `~/.hermes/profiles/<名前>/.env`）に `GBIZINFO_API_TOKEN=...` を書いて Hermes を再起動する |
 | `401` | トークンの写し間違い。完了メールのリンク先から、引用符や空白を付けずに貼り直す |
 | `found: 0` | 名前を短くする・表記を変える（カタカナ／漢字／英字）・住所の絞り込みを外す |
 | `403` / `429` | 混雑か使いすぎ。数分待つ。繰り返し呼ばない |

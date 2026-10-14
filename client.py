@@ -1,7 +1,8 @@
 """HTTP client for the gBizINFO REST API v2 (https://info.gbiz.go.jp/).
 
-Standard library only. The token is read from the environment on every request
-and is sent only to the gBizINFO API host, in the X-hojinInfo-api-token header.
+Standard library only. Every request reads the token with
+agent.secret_scope.get_secret and sends it only to the gBizINFO API host,
+in the X-hojinInfo-api-token header.
 
 gBizINFO is a free government API whose terms forbid excessive or bulk access,
 so the client is deliberately conservative: it spaces requests out, keeps a
@@ -12,7 +13,6 @@ and never paginates on its own.
 from __future__ import annotations
 
 import json
-import os
 import threading
 import time
 import urllib.error
@@ -22,7 +22,7 @@ import urllib.request
 API_BASE = "https://api.info.gbiz.go.jp/hojin/v2/hojin"
 TOKEN_ENV = "GBIZINFO_API_TOKEN"
 APPLY_URL = "https://info.gbiz.go.jp/hojin/various_registration/form"
-VERSION = "0.1.0"
+VERSION = "0.1.1"
 USER_AGENT = f"hermes-plugin-jp-corporate/{VERSION}"
 TIMEOUT_SECONDS = 20
 MIN_INTERVAL_SECONDS = 0.5
@@ -33,7 +33,9 @@ TOKEN_HELP = (
     f"{TOKEN_ENV} is not set. gBizINFO needs a free personal API token: apply at {APPLY_URL} "
     "(申請区分「トークン利用(WebAPI・データダウンロード)」), open the link in the "
     "「Web API 利用申請完了」 email to see the token, add "
-    f"{TOKEN_ENV}=<token> to ~/.hermes/.env, then restart Hermes. "
+    f"{TOKEN_ENV}=<token> to the .env of the Hermes profile that will call this plugin "
+    "(~/.hermes/.env for the default profile, or ~/.hermes/profiles/<name>/.env for a named profile), "
+    "then restart Hermes. "
     "Apply once and keep using that token: the API terms forbid getting or using extra tokens to get "
     "around usage limits."
 )
@@ -64,11 +66,13 @@ class _NoRedirect(urllib.request.HTTPRedirectHandler):
         return None
 
 
-_OPENER = urllib.request.build_opener(_NoRedirect)
+def _build_opener():
+    """Ignore a proxy from the environment so the token is not sent to it."""
+    return urllib.request.build_opener(urllib.request.ProxyHandler({}), _NoRedirect)
 
 
 def _open(request):
-    return _OPENER.open(request, timeout=TIMEOUT_SECONDS)
+    return _build_opener().open(request, timeout=TIMEOUT_SECONDS)
 
 
 def reset_request_count() -> None:
@@ -80,8 +84,13 @@ def request_count() -> int:
     return getattr(_calls, "count", 0)
 
 
+def _token() -> str:
+    from agent.secret_scope import get_secret
+    return (get_secret(TOKEN_ENV) or "").strip()
+
+
 def token_configured() -> bool:
-    return bool(os.environ.get(TOKEN_ENV, "").strip())
+    return bool(_token())
 
 
 def get(path: str = "", params: dict | None = None) -> dict:
@@ -90,7 +99,7 @@ def get(path: str = "", params: dict | None = None) -> dict:
     Raises NotFound on 404 (gBizINFO's answer for "no match") and ApiError for
     everything else that is not a 200.
     """
-    token = os.environ.get(TOKEN_ENV, "").strip()
+    token = _token()
     if not token:
         raise ApiError(TOKEN_HELP)
     # The API answers 500 when a path ends with "/", so build it without one.
@@ -168,8 +177,9 @@ def _http_error(status: int) -> ApiError:
         return NotFound("not found", status)
     if status == 401:
         return ApiError(
-            f"gBizINFO rejected the API token (401). Check that {TOKEN_ENV} in ~/.hermes/.env is the exact "
-            "token shown by the link in your 「Web API 利用申請完了」 email (no quotes or spaces), then restart "
+            f"gBizINFO rejected the API token (401). Check that {TOKEN_ENV} in this profile's .env "
+            "(~/.hermes/.env for the default profile, or ~/.hermes/profiles/<name>/.env for a named profile) "
+            "is the exact token shown by the link in your 「Web API 利用申請完了」 email (no quotes or spaces), then restart "
             "Hermes. If the token was revoked, contact gBizINFO via https://help.info.gbiz.go.jp/hc/ja/requests/new "
             "rather than applying for a second token.",
             status,

@@ -575,6 +575,51 @@ def profile(args: dict) -> dict:
 
 # --- Hermes handler contract ---------------------------------------------------------
 
+def _token_spellings() -> list[str]:
+    """Forms of the current token that must not survive in a tool result.
+
+    http.client reports a header with a newline as the repr of the header bytes
+    (``b'line1\\nline2'``), which is not a substring of the raw token.
+    """
+    try:
+        from agent.secret_scope import get_secret
+        raw = get_secret(client.TOKEN_ENV)
+    except Exception:
+        return []
+    if not isinstance(raw, str) or raw == "":
+        return []
+    found: list[str] = []
+
+    def add(value: str) -> None:
+        if value and value not in found:
+            found.append(value)
+
+    add(raw)
+    add(raw.strip())
+    shown = repr(raw.encode("utf-8", "backslashreplace"))
+    add(shown)
+    if len(shown) >= 3 and shown[0] == "b" and shown[1] in "'\"" and shown.endswith(shown[1]):
+        add(shown[2:-1])
+    found.sort(key=len, reverse=True)
+    return found
+
+
+def _strip_secrets(text: str, spellings: list[str]) -> str:
+    for spelling in spellings:
+        text = text.replace(spelling, "[redacted]")
+    return text
+
+
+def _strip_obj(value, spellings: list[str]):
+    if isinstance(value, str):
+        return _strip_secrets(value, spellings)
+    if isinstance(value, dict):
+        return {key: _strip_obj(item, spellings) for key, item in value.items()}
+    if isinstance(value, list):
+        return [_strip_obj(item, spellings) for item in value]
+    return value
+
+
 def _as_handler(fn):
     def handler(args: dict, **kwargs) -> str:
         client.reset_request_count()
@@ -587,10 +632,14 @@ def _as_handler(fn):
             if error.status:
                 result["http_status"] = error.status
         except Exception as error:  # never raise into the agent loop
+            if type(error).__module__ == "agent.secret_scope" and type(error).__name__ == "UnscopedSecretError":
+                raise
             result = {"error": "internal", "message": f"{type(error).__name__}: {error}. Please report this at "
                                                        "https://github.com/TakeshiTGAL/hermes-plugin-jp-corporate/issues"}
+        spellings = _token_spellings()
+        result = _strip_obj(result, spellings)
         result["api_requests"] = client.request_count()
-        return json.dumps(result, ensure_ascii=False)
+        return _strip_secrets(json.dumps(result, ensure_ascii=False), spellings)
 
     handler.__name__ = fn.__name__
     return handler
