@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import json
 import re
+import unicodedata
 from datetime import datetime, timedelta, timezone
 
 from . import client
@@ -144,12 +145,30 @@ def _first(data: dict) -> dict:
     return infos[0] if infos else {}
 
 
-def _clamp(value, default: int, upper: int) -> int:
-    try:
-        number = int(value)
-    except (TypeError, ValueError):
+def _whole_number(value):
+    """An int, an integral float, or digits (full-width included). Bool is not a count."""
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, int):
+        return value
+    if isinstance(value, float) and value.is_integer():
+        return int(value)
+    text = unicodedata.normalize("NFKC", str(value if value is not None else "")).strip()
+    if re.fullmatch(r"[0-9]+", text):
+        return int(text)
+    if re.fullmatch(r"[0-9]+\.0+", text):
+        return int(text.split(".", 1)[0])
+    return None
+
+
+def _bounded(value, default: int, upper: int, message: str) -> int:
+    """Use default when the argument is omitted. Refuse out-of-range values."""
+    if value is None:
         return default
-    return max(1, min(upper, number))
+    number = _whole_number(value)
+    if number is None or number < 1 or number > upper:
+        raise InputError(message)
+    return number
 
 
 # --- jp_corp_search ----------------------------------------------------------------
@@ -257,11 +276,37 @@ def _lookup_number(raw_number: str, name: str, address: str) -> dict:
     return result
 
 
+_SEARCH_KEYS = {"name", "corporate_number", "address", "limit"}
+_PROFILE_KEYS = {"corporate_number", "sections", "max_items"}
+_LIMIT_MSG = (
+    "limit must be a whole number from 1 to 50, for example 10. "
+    "A number outside that range is refused and is not changed to fit."
+)
+_ITEMS_MSG = (
+    "max_items must be a whole number from 1 to 50, for example 10. "
+    "A number outside that range is refused and is not changed to fit."
+)
+_SEARCH_EXTRA = (
+    "Only name, corporate_number, address, and limit are accepted. "
+    "Remove any other argument. Example: name トヨタ自動車 and limit 10."
+)
+_PROFILE_EXTRA = (
+    "Only corporate_number, sections, and max_items are accepted. "
+    "Remove any other argument. Example: corporate_number 1180301018771 and sections basic."
+)
+
+
+def _unknown(args: dict, allowed: set[str], message: str) -> None:
+    if any(key not in allowed for key in args):
+        raise InputError(message)
+
+
 def search(args: dict) -> dict:
+    _unknown(args, _SEARCH_KEYS, _SEARCH_EXTRA)
     name = str(args.get("name") or "").strip()
     number = str(args.get("corporate_number") or "").strip()
     address = str(args.get("address") or "").strip()
-    limit = _clamp(args.get("limit"), DEFAULT_RESULTS, MAX_RESULTS)
+    limit = _bounded(args.get("limit", None) if "limit" in args else None, DEFAULT_RESULTS, MAX_RESULTS, _LIMIT_MSG)
 
     if number:
         return _lookup_number(number, name, address)
@@ -272,8 +317,8 @@ def search(args: dict) -> dict:
     wanted = core_name(name)
     if not term or not wanted:
         raise InputError(
-            f"name {name!r} has nothing left after removing the legal form (株式会社, (株), ...). "
-            "Include the distinctive part of the name, e.g. トヨタ自動車."
+            "name has nothing left after removing the legal form (株式会社, (株), ...). "
+            "Include the distinctive part of the name, for example トヨタ自動車."
         )
     prefecture, street = split_prefecture(address) if address else (None, "")
     params = {"name": term, "limit": SEARCH_FETCH_LIMIT}
@@ -296,10 +341,12 @@ def search(args: dict) -> dict:
     gave_form = wanted_full != wanted
     street_key = fold_address(street)
     ranked = []
+    name_hits = 0
     for info in rows:
         official = info.get("name") or ""
         if wanted not in core_name(official) and wanted not in fold(official):
             continue  # multi-word input: the API matched one word, the full name is not there
+        name_hits += 1
         if street_key and street_key not in fold_address(info.get("location") or ""):
             continue
         official_core = core_name(official)
@@ -310,6 +357,29 @@ def search(args: dict) -> dict:
     ranked.sort(key=lambda item: item[0])
 
     result = {"query": query, "found": len(ranked)}
+    if not ranked and fetched >= SEARCH_FETCH_LIMIT:
+        # One response, no further pages. A full page is not proof that nothing else exists.
+        prefecture_name = query.get("prefecture")
+        where = f" in {prefecture_name}" if prefecture_name else ""
+        source = f"gBizINFO ({GBIZINFO_TOP}) returned {fetched} rows{where} for a name search of '{term}'."
+        if name_hits:
+            detail = (
+                f" {name_hits} of those rows match the name, and none of them also match the address '{address}'."
+                " Whether a later row matches that address is unknown."
+            )
+            ja = f"この{fetched}件には、その住所のものは無かった。続きは分からない。"
+        else:
+            detail = " None of these rows match that name. Whether a later row matches is unknown."
+            ja = f"この{fetched}件には無かった。続きは分からない。"
+        result["message"] = source + detail + " " + ja
+        result["complete"] = False
+        result["fetched"] = fetched
+        result["next_steps"] = [
+            "Add a prefecture or a city and search again, or search the distinctive part of the name.",
+            "If you have the 13-digit 法人番号, look that number up instead of the name.",
+        ]
+        result["attribution"] = attribution(GBIZINFO_TOP)
+        return result
     if not ranked:
         hints = [
             "Try a shorter distinctive part of the name (e.g. drop 本店, ホールディングス or a branch name).",
@@ -365,7 +435,12 @@ def _basic(info: dict) -> dict:
         "postal_code": _postal(info.get("postal_code")),
         "representative": _representative(info.get("representative_name")),
         "capital_stock_jpy": info.get("capital_stock"),
+        "capital_unit": "円" if info.get("capital_stock") is not None else None,
         "employees": info.get("employee_number"),
+        "employees_unit": "人" if info.get("employee_number") is not None else None,
+        "employees_note": None if info.get("employee_number") is not None else (
+            "employee_number is absent in this gBizINFO basic record. It is not filled with 0."
+        ),
         "established": _date(info.get("date_of_establishment")),
         "founding_year": info.get("founding_year"),
         "business_summary": info.get("business_summary"),
@@ -439,26 +514,86 @@ _FINANCE_FIELDS = {
 }
 
 
+# Same six lines as edinet_financials. gBizINFO's finance block is the filing company
+# (提出会社単体). Fields it does not publish stay found=false. Nothing is copied from a consolidated series.
+_HEADLINE_LINES = (
+    ("revenue", "net_sales_summary_of_business_results"),
+    ("operating_income", None),
+    ("net_income", "net_income_loss_summary_of_business_results"),
+    ("total_assets", "total_assets_summary_of_business_results"),
+    ("net_assets", "net_assets_summary_of_business_results"),
+    ("operating_cash_flow", None),
+)
+
+
+def _yen_unit(row: dict, field: str | None):
+    if not field:
+        return None, None
+    ref = row.get(f"{field}_unit_ref")
+    if ref == "JPY":
+        return "円", "JPY"
+    if isinstance(ref, str) and ref.strip():
+        return ref.strip(), ref.strip()
+    return None, None
+
+
+def _headline_line(row: dict, line: str, field: str | None) -> dict:
+    if not field or field not in row or row.get(field) is None:
+        return {
+            "line": line,
+            "found": False,
+            "value": None,
+            "unit": None,
+            "message": "This line is not in the gBizINFO finance record. It is not filled with 0.",
+        }
+    unit, unit_ref = _yen_unit(row, field)
+    item = {
+        "line": line,
+        "found": True,
+        "value": row.get(field),
+        "unit": unit,
+        "unit_ref": unit_ref,
+    }
+    if unit is None:
+        item["message"] = "The value is present and unit_ref is absent. The unit is not invented."
+    return item
+
+
 def _finance(finance: dict, max_items: int) -> dict:
     if not finance:
-        return {"total": 0, "items": []}
+        return {"total": 0, "items": [], "scope": "non_consolidated", "headline": []}
     years = []
+    headline = []
     for row in finance.get("management_index") or []:
         entry = {"years_before_latest": _int(row.get("period"))}
         for out_key, key in _FINANCE_FIELDS.items():
             entry[out_key] = row.get(key)
         years.append(entry)
+        lines = [_headline_line(row, line, field) for line, field in _HEADLINE_LINES]
+        headline.append({
+            "years_before_latest": entry["years_before_latest"],
+            "scope": "non_consolidated",
+            "lines": lines,
+        })
     years.sort(key=lambda e: e["years_before_latest"] if isinstance(e["years_before_latest"], int) else 99)
+    headline.sort(key=lambda e: e["years_before_latest"] if isinstance(e["years_before_latest"], int) else 99)
     holders = sorted(finance.get("major_shareholders") or [],
                      key=lambda h: h.get("shareholding_ratio") or 0, reverse=True)
     return _compact({
+        "scope": "non_consolidated",
         "fiscal_year": _clean_text(finance.get("fiscal_year_cover_page")),
         "accounting_standards": finance.get("accounting_standards"),
         "results_by_year": years,
+        "headline": headline,
         "results_note": "Non-consolidated figures of the filing company only (提出会社単体, from 「提出会社の経営指標等"
-                        "の推移」 in the securities report), not the consolidated group: e.g. Toyota's net sales here are "
-                        "about 18 trillion yen, while its consolidated revenue is about 48 trillion yen. "
-                        "years_before_latest 0 is the fiscal year above, 1 the year before it, and so on.",
+                        "の推移」 in the securities report), not the consolidated group. "
+                        "Do not add them to edinet_financials. "
+                        "In the recorded fixtures, Toyota (1180301018771) net sales at years_before_latest 0 are "
+                        "18,259,979,000,000 JPY (unit 円; cover page 2026年3月期; gBizINFO page retrieved 2026-10-02), "
+                        "while the EDINET yuho S100TR7I (year ended 2024-03-31) consolidated operating revenues are "
+                        "45,095,325,000,000 円. Those are different statements and different fiscal years. "
+                        "years_before_latest 0 is the fiscal year above, 1 the year before it, and so on. "
+                        "A headline line with found false is absent from gBizINFO and is not filled with 0.",
         "major_shareholders": [
             {"name": h.get("name_major_shareholders"),
              "share_pct": round(h["shareholding_ratio"] * 100, 2) if isinstance(h.get("shareholding_ratio"), (int, float)) else None}
@@ -528,10 +663,14 @@ def _section(section: str, info: dict, max_items: int):
         return _workplace(info.get("workplace_info") or {})
     if section == "offices":
         return _listed(info.get("corporation-info") or [], max_items, _office, None)
-    raise InputError(f"unknown section {section!r}")
+    raise InputError(
+        "sections must be one of basic, subsidy, procurement, commendation, certification, "
+        "finance, patent, workplace, offices. Example: basic."
+    )
 
 
 def profile(args: dict) -> dict:
+    _unknown(args, _PROFILE_KEYS, _PROFILE_EXTRA)
     number = parse_corporate_number(args.get("corporate_number"))
     raw_sections = args.get("sections") or ["basic"]
     if isinstance(raw_sections, str):
@@ -540,10 +679,16 @@ def profile(args: dict) -> dict:
     for section in raw_sections:
         key = str(section).strip().lower()
         if key not in SECTIONS:
-            raise InputError(f"unknown section {section!r}. Choose from: {', '.join(SECTIONS)}.")
+            raise InputError(
+                "sections must be one of basic, subsidy, procurement, commendation, certification, "
+                "finance, patent, workplace, offices. Example: basic."
+            )
         if key not in sections:
             sections.append(key)
-    max_items = _clamp(args.get("max_items"), DEFAULT_ITEMS, MAX_ITEMS)
+    max_items = _bounded(
+        args.get("max_items", None) if "max_items" in args else None,
+        DEFAULT_ITEMS, MAX_ITEMS, _ITEMS_MSG,
+    )
 
     header, out = {}, {}
     for section in sections:
@@ -626,11 +771,13 @@ def _as_handler(fn):
         try:
             result = fn(args or {})
         except InputError as error:
-            result = {"error": "input", "message": str(error)}
+            result = {"error": "input", "ok": False, "error_type": "bad_args", "message": str(error)}
         except client.ApiError as error:
             result = {"error": "api" if client.token_configured() else "token_missing", "message": str(error)}
             if error.status:
                 result["http_status"] = error.status
+            if result.get("error") == "token_missing":
+                result["next_step"] = result["message"]
         except Exception as error:  # never raise into the agent loop
             if type(error).__module__ == "agent.secret_scope" and type(error).__name__ == "UnscopedSecretError":
                 raise

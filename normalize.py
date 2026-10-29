@@ -42,25 +42,25 @@ def parse_corporate_number(raw: str) -> str:
     if text[:1] in ("T", "t"):
         text = text[1:]
     if not text:
-        raise InputError("corporate_number is empty. Give the 13-digit 法人番号, e.g. 1180301018771.")
+        raise InputError("corporate_number is empty. Give the 13-digit 法人番号, for example 1180301018771.")
     if not text.isdigit():
         raise InputError(
-            f"corporate_number {raw!r} contains characters other than digits. "
+            "corporate_number contains characters other than digits. "
             "Give the 13-digit 法人番号 (an invoice number like T1180301018771 is also accepted)."
         )
     if len(text) != 13:
         raise InputError(
-            f"corporate_number {raw!r} has {len(text)} digits; a 法人番号 has exactly 13. "
-            "Check for a missing or extra digit. To find the number from a name, call jp_corp_search with name instead."
+            "corporate_number must be exactly 13 digits. "
+            "Check for a missing or extra digit, or call jp_corp_search with name. Example: 1180301018771."
         )
     expected = check_digit(text[1:])
     if int(text[0]) != expected:
         # The expected digit is deliberately not shown: "fixing" the first digit would turn a
         # typo anywhere in the number into a valid-looking number of some other corporation.
         raise InputError(
-            f"corporate_number {raw!r} fails the 法人番号 check digit, so at least one digit is wrong. "
+            "corporate_number fails the 法人番号 check digit, so at least one digit is wrong. "
             "Re-check it against the source document (invoice, contract, registry) or search by name "
-            "instead. No request was sent."
+            "instead. Example: 1180301018771. No request was sent."
         )
     return text
 

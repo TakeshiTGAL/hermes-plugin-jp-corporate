@@ -22,7 +22,7 @@ import urllib.request
 API_BASE = "https://api.info.gbiz.go.jp/hojin/v2/hojin"
 TOKEN_ENV = "GBIZINFO_API_TOKEN"
 APPLY_URL = "https://info.gbiz.go.jp/hojin/various_registration/form"
-VERSION = "0.1.1"
+VERSION = "0.1.12"
 USER_AGENT = f"hermes-plugin-jp-corporate/{VERSION}"
 TIMEOUT_SECONDS = 20
 MIN_INTERVAL_SECONDS = 0.5
@@ -37,7 +37,10 @@ TOKEN_HELP = (
     "(~/.hermes/.env for the default profile, or ~/.hermes/profiles/<name>/.env for a named profile), "
     "then restart Hermes. "
     "Apply once and keep using that token: the API terms forbid getting or using extra tokens to get "
-    "around usage limits."
+    "around usage limits. "
+    "Without this token the basic row (corporate number, registered address, industry, capital, employees) "
+    "and the non-consolidated finance lines stay empty. The free token fills those rows. "
+    "It does not fill EDINET consolidated rows."
 )
 
 

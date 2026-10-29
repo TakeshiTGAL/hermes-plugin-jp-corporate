@@ -8,8 +8,8 @@ def test_valid_corporate_numbers_are_cleaned(plugin, raw):
 
 
 @pytest.mark.parametrize("raw, fragment", [
-    ("118030101877", "has 12 digits"),
-    ("11803010187711", "has 14 digits"),
+    ("118030101877", "exactly 13"),
+    ("11803010187711", "exactly 13"),
     ("2180301018771", "fails the 法人番号 check digit"),
     ("1180301018772", "fails the 法人番号 check digit"),
     ("ABC", "characters other than digits"),

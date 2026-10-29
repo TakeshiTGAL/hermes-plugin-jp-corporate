@@ -1,5 +1,19 @@
 # jp-corporate (法人照会) for Hermes Agent
 
+## 何が唯一か
+
+`finance.headline` is the filing company's non-consolidated six lines, each with a unit, kept apart from the consolidated series. A line gBizINFO does not publish is `found: false`. In the recorded fixture for トヨタ自動車株式会社 (corporate number 1180301018771, retrieved 2026-10-02, page https://info.gbiz.go.jp/hojin/ichiran?hojinBango=1180301018771), net sales at `years_before_latest` 0 are 18,259,979,000,000 JPY (unit 円, `unit_ref` JPY; cover page 2026年3月期). On that same record, operating income, net income, total assets, net assets, and operating cash flow are `found: false`. The EDINET yuho S100TR7I consolidated operating revenues for the year ended 2024-03-31 are 45,095,325,000,000 円. Those are different statements and different fiscal years. The missing-token result carries `next_step` with the same text as `message`, naming `GBIZINFO_API_TOKEN` and the free application form. `pre_llm_call` adds its paragraph only on company talk: a 13-digit corporate number, the word 法人番号, a legal-form word (株式会社, 有限会社, 合同会社, 合名会社, 合資会社, 相互会社, 一般社団法人, 一般財団法人, 公益社団法人, 公益財団法人, 特定非営利活動法人, (株), (有), or (同)), or a recorded registry name (トヨタ自動車, 大栄精工, グローバルプロダクトプランニング, キヤノン, 任天堂, ソニーグループ), or `jp_corp_search` or `jp_corp_profile` called in the previous turn. A katakana-kanji shape such as フィボナッチ数列 or グラタン皿 is not company talk. ソニー alone is not in the table. A katakana or kanji name before の, together with a field this plugin returns (資本金, 従業員, 設立, 本社, 代表者, 概要, 事業内容, or 法人番号), is also company talk. パナソニックの資本金は？, ホンダの従業員数はどれくらい？, and 日産自動車の概要を教えて are company talk. トヨタの売上を教えて and パナソニックについて教えて are not. When `GBIZINFO_API_TOKEN` is unset, that paragraph also names the free application form https://info.gbiz.go.jp/hojin/various_registration/form. `llm_execution` then replaces a final reply that does not already contain that URL with the same `next_step` text, so the screen shows the form and `GBIZINFO_API_TOKEN` and does not repeat the user message. A tool name typed in the message is not a call. On any other turn, including hermes の設定はどこで見る？, it adds nothing. The paragraph is: "Company lookup: the parameters of jp_corp_search are known. Do not call tool_describe. Before web_search, use tool_search to find jp_corp_search when it is not already visible, then tool_call it. If a tool result is already in this conversation, copy its next_step and stop. Otherwise call jp_corp_search. The company name is the name in the user message. Do not pass the word COMPANY as the name. If the result error is token_missing, copy the next_step field into the reply and stop. Do not say jp_corp_profile confirmed a corporate number or an address when that tool was not called. Do not write 取得しました, 確認しました, or 確認できます. Do not write successfully retrieved, verified, or obtained using. That ban is the same as 取得しました. Do not write a corporate number, address, industry, capital, employees, or yen that the tool result does not contain." It does not forbid `tool_search`. The skill tells the model to find `jp_corp_search` with `tool_search` before web search. It does not show an argument example. It says not to pass the word COMPANY as the name, and not to say `jp_corp_profile` confirmed a corporate number or an address when that tool was not called. It also says not to write "successfully retrieved", "verified", or "obtained using". That ban is the same as 取得しました.
+
+## Comparison
+
+Facts checked for the cluster note on 2026-10-26.
+
+Buffett Code's pricing page lists Light at ￥990 per month for 業績・指標7期. This tool returns the non-consolidated management-index years gBizINFO publishes for one corporate number, with the gBizINFO page URL. It does not return an earnings forecast.
+
+gBizINFO's own finance section cites EDINET. The page this note checked does not say that those finance figures are the filing company alone. This tool's `results_note` says 提出会社単体 and gives the two Toyota amounts above.
+
+SPEEDA's company page includes industry reports and expert comments. This tool returns the gBizINFO record: corporate number, registered address, industry, capital, employees when present, and the non-consolidated lines.
+
 Look up Japanese corporations from [Hermes Agent](https://hermes-agent.nousresearch.com): check that a business partner is a registered corporation and whether its registration has been closed, find a company's corporate number (法人番号), check the number on an invoice against the company name and address, and see its record of government subsidies, contracts, awards, certifications, financials, patents and workplace data.
 
 Data comes from [gBizINFO](https://info.gbiz.go.jp/) (Gビズインフォ), the free corporate-information service of Japan's Ministry of Economy, Trade and Industry. You need your own free gBizINFO API token (see [Get a token](#get-a-gbizinfo-token)).
@@ -51,6 +65,8 @@ Both tools are read-only. A typical question takes one or two calls: search, the
 | `limit` | `10` | 1–50 results. |
 
 Results come back ranked: exact name match first, then names that start with the query, then names that contain it; registered corporations before closed ones.
+
+A name search asks for 1000 rows in one request and does not read further pages. When fewer than 1000 rows come back, or gBizINFO answers 404, no local match means gBizINFO has no corporation under that name in what was read. When 1000 or more rows come back and none of them match, the reply says these rows did not contain the match and that anything beyond them is unknown. It cites gBizINFO. It does not say the corporation does not exist.
 
 ```json
 {"query": {"name": "ﾄﾖﾀ自動車", "searched_as": "トヨタ自動車"}, "found": 81, "shown": 3,
@@ -106,6 +122,8 @@ The token is free. It is issued to you, for the purpose you state.
 5. 利用予定 (planned use): say how you will call it, for example "Hermes Agent から取引先の確認のため手動で照会。1日数十件程度。"
 6. Agree to the API terms and the privacy policy, submit, and open the link in the 「Web API 利用申請完了」 email. The token is shown on that page.
 
+A call made before the token is set returns the apply URL and does not invent a company. The basic row and the non-consolidated finance lines stay empty until the token is in that profile's `.env` and Hermes is restarted. Recorded responses used by the tests, with the source page and the retrieval date 2026-10-02, are listed in `tests/fixtures/README.md`.
+
 **Apply once and keep using that token.** The gBizINFO API terms forbid obtaining or using several tokens to get around usage limits, and allow use only for the purpose you declared. If a token stops working, contact gBizINFO (<https://help.info.gbiz.go.jp/hc/ja/requests/new>) instead of applying again.
 
 ## Credit the source
@@ -151,6 +169,8 @@ For bulk data, use gBizINFO's [download files](https://info.gbiz.go.jp/hojin/Dow
 - Network: HTTPS requests to `api.info.gbiz.go.jp` only. The names, corporate numbers and prefectures you search for are sent there, with your token in the `X-hojinInfo-api-token` header. Redirects are refused, so the token cannot be forwarded to another host. A proxy set in the environment is not used, so the token is not sent to it. The token never appears in tool output or error messages.
 - Reads `GBIZINFO_API_TOKEN` with Hermes `agent.secret_scope.get_secret` on each call. Writes no files; the cache lives in memory and is gone when Hermes exits.
 - Never prompts, so it does not block cron jobs or the messaging gateway: a missing token is returned as an error message.
+- Who can call it: the `jp_corporate` toolset is on for every surface by default, including messaging gateways, so anyone a gateway lets talk to the bot can call these tools with your token. The agent can also call them on its own. Turn the toolset off per surface with `hermes tools`.
+- The plugin also registers one skill, `japan-company`, which tells the agent to look these tools up with tool_search before web search. On a surface where `hermes tools` turned the tools off, the calls are unavailable. Disabling the plugin removes the skill.
 - Python standard library only, no dependencies. No shell commands, no background processes, no telemetry, no self-update.
 
 ## Development
@@ -200,6 +220,8 @@ MIT. Built on gBizINFO (Gビズインフォ), the corporate-information service 
 - 適格請求書発行事業者として登録されているかは別の台帳です。[国税庁 インボイス制度 適格請求書発行事業者公表サイト](https://www.invoice-kohyo.nta.go.jp/)で確かめてください。
 - 個人事業主は対象外です。0件でも「存在しない」証明にはなりません。
 - 代表者・資本金・従業員数は古いことがあります。結果の `gbizinfo_last_updated` で日付を確かめてください。与信の判断には登記事項証明書で確かめてください。
+- 誰が呼べるか: `jp_corporate` の道具は既定でゲートウェイを含む全部の面で有効です。ゲートウェイでボットと話せる人は誰でも、あなたのトークンでこの道具を呼べます。エージェントも自分で呼べます。面ごとに止めるには `hermes tools`。
+- プラグインは skill `japan-company` を1つ登録します（web 検索より先に tool_search でこの道具を探すよう促すもの）。プラグインが有効な間、この skill は全部のセッションの skill 一覧に1行入ります。`hermes tools` で道具を切った面でも入り、その面では道具を呼べないだけです。この行を消すにはプラグインを無効にします。
 
 ### 困ったとき
 

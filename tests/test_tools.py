@@ -33,6 +33,8 @@ def test_manifest_matches_the_registrations(plugin):
     manifest = yaml.safe_load((PLUGIN_DIR / "plugin.yaml").read_text())
     tools = [schema["name"] for schema in plugin.schemas.ALL_SCHEMAS]
     assert manifest["provides_tools"] == tools
+    assert manifest["provides_hooks"] == ["pre_llm_call"]
+    assert manifest["provides_middleware"] == ["llm_execution"]
     assert [env["name"] for env in manifest["requires_env"]] == [plugin.client.TOKEN_ENV]
     assert manifest["version"] == plugin.client.VERSION
 
@@ -182,7 +184,9 @@ def test_missing_token_points_to_the_application_form(plugin, api, monkeypatch):
     monkeypatch.delenv("GBIZINFO_API_TOKEN")
     result = call(plugin, "jp_corp_search", {"name": "トヨタ自動車"})
     assert result["error"] == "token_missing"
+    assert result["next_step"] == result["message"]
     assert "https://info.gbiz.go.jp/hojin/various_registration/form" in result["message"]
+    assert "GBIZINFO_API_TOKEN" in result["next_step"]
     assert "~/.hermes/.env" in result["message"]
     assert "~/.hermes/profiles/<name>/.env" in result["message"]
     assert api.requests == []
@@ -248,6 +252,22 @@ def test_profile_sections_cost_one_request_each(plugin, api):
     assert out["subsidy"] == {"total": 0, "items": []}
     finance = out["finance"]
     assert finance["results_by_year"][0]["years_before_latest"] == 0
+    assert finance["scope"] == "non_consolidated"
+    latest = finance["headline"][0]
+    assert latest["years_before_latest"] == 0
+    lines = {item["line"]: item for item in latest["lines"]}
+    assert lines["revenue"]["found"] is True
+    assert lines["revenue"]["value"] == 18259979000000
+    assert lines["revenue"]["unit"] == "円"
+    assert lines["revenue"]["unit_ref"] == "JPY"
+    assert lines["operating_income"]["found"] is False
+    assert lines["operating_income"].get("value") is None
+    assert lines["operating_cash_flow"]["found"] is False
+    for line in ("net_income", "total_assets", "net_assets", "operating_cash_flow"):
+        assert lines[line]["found"] is False
+        assert lines[line].get("value") is None
+    assert "18,259,979,000,000" in finance["results_note"]
+    assert "45,095,325,000,000" in finance["results_note"]
     assert finance["major_shareholders"][0] == {"name": "日本マスタートラスト信託銀行㈱", "share_pct": 12.8}
     assert out["workplace"]["female_worker_pct"] == 40.6
 

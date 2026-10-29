@@ -3,22 +3,22 @@
 SEARCH = {
     "name": "jp_corp_search",
     "description": (
-        "Find a Japanese corporation in gBizINFO (Ministry of Economy, Trade and Industry) and confirm it is "
-        "registered. Use it to check a business partner, to look up a 法人番号 (corporate number) from a company "
+        "Japan company registry (gBizINFO): find a corporation. "
+        "Use it to check a business partner, to look up a 法人番号 (corporate number) from a company "
         "name, or to check the number on an invoice. "
-        "Give name to search (partial match; 株式会社/(株)/㈱, half-width kana and full-width letters are "
-        "handled, e.g. '(株)ﾄﾖﾀ自動車' finds トヨタ自動車株式会社); add address (prefecture and/or city, e.g. "
-        "'愛知県豊田市') to tell same-name companies apart. Results are ranked exact match first, registered "
-        "before closed. "
+        "Give name to search. Add address to tell same-name companies apart. "
+        "Exact matches and registered companies rank first. "
         "Give corporate_number (13 digits; an invoice number such as T1180301018771 also works) to look one "
-        "corporation up; add name and/or address too and the result says whether they match the official "
-        "record. Malformed numbers are rejected without any request. "
+        "corporation up; add name and/or address too. "
+        "Malformed numbers are rejected without any request. "
         "Returns name, head-office address, status and the gBizINFO page URL. status 'registered' means the "
-        "registration is not closed; it does not prove the business is operating. 'closed' means the "
-        "registration was closed (liquidation, merger, ...). "
-        "Limits: covers corporations only (not sole proprietors); 0 results is not proof that a company does "
-        "not exist; it does not check qualified-invoice-issuer (適格請求書発行事業者) registration. "
-        "Costs at most one API request. When you show the results, include the attribution line."
+        "registration is not closed, which does not prove the business operates; 'closed' covers "
+        "liquidation, merger, and so on. "
+        "Corporations only, not sole proprietors, and not an invoice-issuer check. "
+        "Zero results do not prove a company does not exist. "
+        "gBizINFO is METI's lookup service for Japanese companies. "
+        "At 1000 rows, later rows were not read. "
+        "Costs at most one API request. Include the attribution line."
     ),
     "parameters": {
         "type": "object",
@@ -52,17 +52,17 @@ SEARCH = {
 PROFILE = {
     "name": "jp_corp_profile",
     "description": (
-        "Get gBizINFO details for one Japanese corporation by its 13-digit 法人番号 (find the number with "
-        "jp_corp_search first). Pick only the sections you need; each section is one API request: "
+        "Japan gBizINFO: one company by its corporate number. "
+        "The corporate number (法人番号, houjin bangou) has 13 digits; get it from jp_corp_search. "
+        "Pick only the sections you need; each section is one API request: "
         "basic (official name, kana, status and close reason, address, representative, capital, employees, "
         "established date, industry, website), subsidy (government subsidies received), procurement "
         "(government contracts won), commendation (government awards), certification (government "
         "registrations/certifications such as DX認定 or 健康経営), finance (sales, profit, assets and major "
         "shareholders from securities reports; listed companies mostly), patent (patents, designs, trademarks), "
-        "workplace (average age, years of service, overtime, women in management, childcare leave), offices "
-        "(business sites enrolled in employees' pension and health insurance, with insured headcount). Lists are newest first with a total count. "
-        "Representative, capital and employee counts can be years old: when you quote them, also give "
-        "gbizinfo_last_updated (a freshness_note appears when the record is over a year old). "
+        "workplace (mean age, years of service, overtime, women in management, childcare leave), offices "
+        "(business sites on employees' pension, with insured headcount). Lists come newest first, with a total. "
+        "When you quote representative, capital, or employees, also give gbizinfo_last_updated. "
         "When you show the results, include the attribution line."
     ),
     "parameters": {
