@@ -1,5 +1,5 @@
 name: jp-corporate
-version: 0.1.12
+version: 0.1.13
 manifest_version: 2
 requires_hermes: ">=0.21.4"
 description: >
@@ -17,8 +17,6 @@ provides_tools:
   - jp_corp_profile
 provides_hooks:
   - pre_llm_call
-provides_middleware:
-  - llm_execution
 
 requires_env:
   - name: GBIZINFO_API_TOKEN

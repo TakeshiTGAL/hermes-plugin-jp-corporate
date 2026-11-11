@@ -34,7 +34,7 @@ def test_manifest_matches_the_registrations(plugin):
     tools = [schema["name"] for schema in plugin.schemas.ALL_SCHEMAS]
     assert manifest["provides_tools"] == tools
     assert manifest["provides_hooks"] == ["pre_llm_call"]
-    assert manifest["provides_middleware"] == ["llm_execution"]
+    assert "provides_middleware" not in manifest
     assert [env["name"] for env in manifest["requires_env"]] == [plugin.client.TOKEN_ENV]
     assert manifest["version"] == plugin.client.VERSION
 

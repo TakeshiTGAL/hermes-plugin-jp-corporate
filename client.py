@@ -22,7 +22,7 @@ import urllib.request
 API_BASE = "https://api.info.gbiz.go.jp/hojin/v2/hojin"
 TOKEN_ENV = "GBIZINFO_API_TOKEN"
 APPLY_URL = "https://info.gbiz.go.jp/hojin/various_registration/form"
-VERSION = "0.1.12"
+VERSION = "0.1.13"
 USER_AGENT = f"hermes-plugin-jp-corporate/{VERSION}"
 TIMEOUT_SECONDS = 20
 MIN_INTERVAL_SECONDS = 0.5

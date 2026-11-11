@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.13
+
+The plugin no longer registers `llm_execution`. A final reply stays as the model wrote it. A tool result with error `token_missing` still sets `next_step` to the same text as `message`.
+
 ## 0.1.12
 
 What was understood: a question such as パナソニックの資本金は？, ホンダの従業員数はどれくらい？, or 日産自動車の概要を教えて had no corporate number, no legal-form word, and no recorded registry name, so `pre_llm_call` added nothing. On a small model the reply said no tool could answer, or it repeated the question after `token_missing`. Pytest before this change, on 0.1.11: 124 passed, 2 skipped.

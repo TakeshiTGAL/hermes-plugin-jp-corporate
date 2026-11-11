@@ -1,62 +1,53 @@
-"""A company turn with no token shows the free-token steps, not the user text."""
+"""A final reply stays as written when the token is unset.
 
-from types import SimpleNamespace
-
-
-def _response(content, tool_calls=None):
-    message = SimpleNamespace(content=content, tool_calls=tool_calls)
-    return SimpleNamespace(choices=[SimpleNamespace(message=message)])
+A 13-digit number or 株式会社 in an unrelated conversation used to match the
+company classifier. Nothing here rewrites that reply. llm_execution is not
+registered.
+"""
 
 
-def test_echo_becomes_the_free_token_steps(plugin, monkeypatch):
+def test_unrelated_reply_is_unchanged_when_the_token_is_unset(plugin, monkeypatch):
     monkeypatch.delenv("GBIZINFO_API_TOKEN", raising=False)
-    plugin._nudge_company(user_message="パナソニックの資本金は？", session_id="s-echo")
-    response = _response("パナソニックの資本金は？")
+    middleware = []
 
-    def next_call():
-        return response
+    class Ctx:
+        def register_tool(self, *args, **kwargs):
+            return None
 
-    out = plugin._fill_token_help(next_call=next_call, session_id="s-echo")
-    text = out.choices[0].message.content
-    assert text == plugin.client.TOKEN_HELP
-    assert "パナソニックの資本金は？" not in text
-    assert "https://info.gbiz.go.jp/hojin/various_registration/form" in text
-    assert "GBIZINFO_API_TOKEN" in text
+        def register_hook(self, *args, **kwargs):
+            return None
 
+        def register_middleware(self, name, callback):
+            middleware.append(name)
 
-def test_tool_call_is_left_alone(plugin, monkeypatch):
-    monkeypatch.delenv("GBIZINFO_API_TOKEN", raising=False)
-    plugin._nudge_company(user_message="ホンダの従業員数はどれくらい？", session_id="s-call")
-    response = _response("", tool_calls=[SimpleNamespace(name="jp_corp_profile")])
+        def register_skill(self, *args, **kwargs):
+            return None
 
-    def next_call():
-        return response
+    plugin.register(Ctx())
+    assert middleware == []
+    assert "llm_execution" not in middleware
+    assert not hasattr(plugin, "_fill_token_help")
+    assert not hasattr(plugin, "_token_screen")
 
-    out = plugin._fill_token_help(next_call=next_call, session_id="s-call")
-    assert out.choices[0].message.tool_calls[0].name == "jp_corp_profile"
-    assert out.choices[0].message.content == ""
-
-
-def test_plain_turn_keeps_the_model_text(plugin, monkeypatch):
-    monkeypatch.delenv("GBIZINFO_API_TOKEN", raising=False)
-    plugin._nudge_company(user_message="グラタン皿でチーズグラタンを作る手順を教えて。", session_id="s-off")
-    response = _response("オーブンで焼きます。")
-
-    def next_call():
-        return response
-
-    out = plugin._fill_token_help(next_call=next_call, session_id="s-off")
-    assert out.choices[0].message.content == "オーブンで焼きます。"
-
-
-def test_reply_that_already_has_the_form_stays(plugin, monkeypatch):
-    monkeypatch.delenv("GBIZINFO_API_TOKEN", raising=False)
-    plugin._nudge_company(user_message="日産自動車の概要を教えて", session_id="s-keep")
-    kept = "Apply at https://info.gbiz.go.jp/hojin/various_registration/form and set GBIZINFO_API_TOKEN."
-    response = _response(kept)
-
-    def next_call():
-        return response
-
-    out = plugin._fill_token_help(next_call=next_call, session_id="s-keep")
-    assert out.choices[0].message.content == kept
+    cases = (
+        (
+            "処理が終わった時刻は 1731283200123 です。この数字は何ですか。",
+            "1731283200123 はミリ秒の時刻です。会社の照会結果ではありません。",
+        ),
+        (
+            "メールの末尾に株式会社とだけ書いてあります。返事の書き出しを提案して。",
+            "お世話になっております。署名の株式会社はメールの定型です。",
+        ),
+    )
+    for user, reply in cases:
+        history = [
+            {"role": "user", "content": user},
+            {"role": "assistant", "content": reply},
+        ]
+        plugin._nudge_company(
+            user_message=user,
+            conversation_history=history,
+            session_id="s-unrelated",
+        )
+        assert history[1]["content"] == reply
+        assert len(history[1]["content"]) == len(reply)

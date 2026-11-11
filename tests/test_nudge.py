@@ -19,17 +19,17 @@ def test_nudge_calls_search_and_does_not_claim_an_uncalled_profile(plugin):
     assert "next_step" in text
 
 
-def test_missing_token_paragraph_names_the_form_and_the_env(plugin, monkeypatch):
+def test_token_missing_says_to_copy_next_step(plugin, monkeypatch):
     monkeypatch.delenv("GBIZINFO_API_TOKEN", raising=False)
     text = plugin._nudge_company(user_message="パナソニックの資本金は？", session_id="s-form")["context"]
     assert text.startswith("Company lookup:")
-    assert "https://info.gbiz.go.jp/hojin/various_registration/form" in text
-    assert "GBIZINFO_API_TOKEN" in text
-    assert "not the user message" in text
+    assert "If the result error is token_missing, copy the next_step field into the reply and stop." in text
+    assert "not the user message" not in text
+    assert "various_registration/form" not in text
     assert "EDINET" not in text
     monkeypatch.setenv("GBIZINFO_API_TOKEN", "present-token")
     set_text = plugin._nudge_company(user_message="パナソニックの資本金は？", session_id="s-set")["context"]
-    assert "various_registration/form" not in set_text
+    assert set_text == text
 
 
 def test_nudge_is_absent_on_a_settings_question(plugin):
